@@ -24,12 +24,12 @@ print("The program is distributed under the terms of the GNU General Public Lice
 # input data -----------------------------------------------------
 n_transactions = 2
 tasks = {
-    0: {'r': 0, 'D': 12, 'T': 6, 'jit':4, 'p':2, 'fix':1, 'pred': [], 'succ': [2], 'transaction':0},
-    1: {'r': 0, 'D': 16, 'T': 8, 'jit':4, 'p':2, 'fix':1, 'pred': [], 'succ': [4], 'transaction':1},
-    2: {'r': 0, 'D': 12, 'T': 6, 'jit':4, 'p':2, 'fix':2, 'pred': [0], 'succ': [3], 'transaction':0},
-    3: {'r': 0, 'D': 12, 'T': 6, 'jit':4, 'p':2, 'fix':3, 'pred': [2], 'succ': [], 'transaction':0},
-    4: {'r': 0 , 'D': 16, 'T': 8, 'jit':4, 'p':4, 'fix':2, 'pred': [1], 'succ': [5], 'transaction':1},
-    5: {'r': 0 , 'D': 16, 'T': 8, 'jit':4, 'p':4, 'fix':3, 'pred': [4], 'succ': [], 'transaction':1}}
+    0: {'r': 0, 'd': 12, 'T': 6, 'jit':4, 'p':2, 'fix':1, 'pred': [], 'succ': [2], 'transaction':0},
+    1: {'r': 0, 'd': 16, 'T': 8, 'jit':4, 'p':2, 'fix':1, 'pred': [], 'succ': [4], 'transaction':1},
+    2: {'r': 0, 'd': 12, 'T': 6, 'jit':4, 'p':2, 'fix':2, 'pred': [0], 'succ': [3], 'transaction':0},
+    3: {'r': 0, 'd': 12, 'T': 6, 'jit':4, 'p':2, 'fix':3, 'pred': [2], 'succ': [], 'transaction':0},
+    4: {'r': 0 , 'd': 16, 'T': 8, 'jit':4, 'p':4, 'fix':2, 'pred': [1], 'succ': [5], 'transaction':1},
+    5: {'r': 0 , 'd': 16, 'T': 8, 'jit':4, 'p':4, 'fix':3, 'pred': [4], 'succ': [], 'transaction':1}}
 latency_bound = [14, 14]
 
 # processed data
@@ -50,14 +50,14 @@ s = [ [Int("s_%s_%s" % (i+1, k+1)) for k in range(nJobs[i])]
 # relative time window constraints 1
 r = [[Int("r_%s_%s" % (i+1, k+1)) for k in range(nJobs[i])]
       for i in range(n_tasks)]
-D = [[Int("D_%s_%s" % (i+1, k+1)) for k in range(nJobs[i])]
+d = [[Int("d_%s_%s" % (i+1, k+1)) for k in range(nJobs[i])]
       for i in range(n_tasks)]
 for i in range(n_tasks):
     for k in range(nJobs[i]):
         sol.add(r[i][k] == tasks[i]['r'] + k * tasks[i]['T'])
-        sol.add(D[i][k] == tasks[i]['D'] + k * tasks[i]['T'])
+        sol.add(d[i][k] == tasks[i]['d'] + k * tasks[i]['T'])
         sol.add(r[i][k] <= s[i][k],
-                s[i][k] <= D[i][k] - tasks[i]['p'])
+                s[i][k] <= d[i][k] - tasks[i]['p'])
 
 # jitter constraints 2 and 3
 jit = [Int("jit_%s" % (i+1)) for i in range(n_tasks)]
@@ -86,8 +86,8 @@ for i in range(n_transactions):
 
 
 # resource constraints 11
-D = [tasks[i]['D'] + k * tasks[i]['T'] for k in range(nJobs[i]) for i in range(n_tasks)]
-n_H_max = int(np.ceil(max(D)/H))
+d = [tasks[i]['d'] + k * tasks[i]['T'] for k in range(nJobs[i]) for i in range(n_tasks)]
+n_H_max = int(np.ceil(max(d)/H))
 for i in range(n_tasks):
     for j in range(i, n_tasks):
         for k in range(nJobs[i]):

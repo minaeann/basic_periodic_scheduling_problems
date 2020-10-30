@@ -23,11 +23,11 @@ print("The program is distributed under the terms of the GNU General Public Lice
 
 # input data -----------------------------------------------------
 tasks = {
-    0: {'r': 4, 'D': 6, 'T': 6, 'jit':4, 'p':2},
-    1: {'r': 0, 'D': 4, 'T': 8, 'jit':4, 'p':2}}
-    #2: {'r': 0, 'D': 12, 'T': 12, 'jit':0, 'p':2},
-    #3: {'r': 0, 'D': 16, 'T': 16, 'jit':0, 'p':1},
-    #4: {'r': 0 , 'D': 48, 'T': 48, 'jit':0, 'p':5}}
+    0: {'r': 4, 'd': 6, 'T': 6, 'jit':4, 'p':2},
+    1: {'r': 0, 'd': 4, 'T': 8, 'jit':4, 'p':2}}
+    #2: {'r': 0, 'd': 12, 'T': 12, 'jit':0, 'p':2},
+    #3: {'r': 0, 'd': 16, 'T': 16, 'jit':0, 'p':1},
+    #4: {'r': 0 , 'd': 48, 'T': 48, 'jit':0, 'p':5}}
 
 # processed data
 n_tasks = len(tasks)
@@ -47,14 +47,14 @@ s = [ [Int("s_%s_%s" % (i+1, k+1)) for k in range(nJobs[i])]
 # relative time window constraints 1
 r = [ [Int("r_%s_%s" % (i+1, k+1)) for k in range(nJobs[i])]
       for i in range(n_tasks)]
-D = [ [Int("D_%s_%s" % (i+1, k+1)) for k in range(nJobs[i])]
+d = [ [Int("d_%s_%s" % (i+1, k+1)) for k in range(nJobs[i])]
       for i in range(n_tasks)]
 for i in range(n_tasks):
     for k in range(nJobs[i]):
         sol.add(r[i][k] == tasks[i]['r'] + k * tasks[i]['T'])
-        sol.add(D[i][k] == tasks[i]['D'] + k * tasks[i]['T'])
+        sol.add(d[i][k] == tasks[i]['d'] + k * tasks[i]['T'])
         sol.add(r[i][k] <= s[i][k],
-                s[i][k] <= D[i][k] - tasks[i]['p'])
+                s[i][k] <= d[i][k] - tasks[i]['p'])
 
 # jitter constraints 2 and 3
 jit = [Int("jit_%s" % (i+1)) for i in range(n_tasks)]

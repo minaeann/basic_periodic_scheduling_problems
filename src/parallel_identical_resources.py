@@ -23,11 +23,11 @@ print("The program is distributed under the terms of the GNU General Public Lice
 
 # input data -----------------------------------------------------
 tasks = {
-    0: {'r': 0, 'D': 6, 'T': 6, 'jit':0, 'p':2},
-    1: {'r': 0, 'D': 24, 'T': 24, 'jit':0, 'p':2},
-    2: {'r': 0, 'D': 3, 'T': 3, 'jit':0, 'p':1},
-    3: {'r': 0, 'D': 8, 'T': 8, 'jit':0, 'p':3},
-    4: {'r': 0 , 'D': 4, 'T': 4, 'jit':0, 'p':2}}
+    0: {'r': 0, 'd': 6, 'T': 6, 'jit':0, 'p':2},
+    1: {'r': 0, 'd': 24, 'T': 24, 'jit':0, 'p':2},
+    2: {'r': 0, 'd': 3, 'T': 3, 'jit':0, 'p':1},
+    3: {'r': 0, 'd': 8, 'T': 8, 'jit':0, 'p':3},
+    4: {'r': 0 , 'd': 4, 'T': 4, 'jit':0, 'p':2}}
 
 # processed data
 n_tasks = len(tasks)
@@ -43,9 +43,9 @@ s = [ [Int("s_%s_%s" % (i+1, k+1)) for k in range(nJobs[i])]
       for i in range(n_tasks)]
 fix = [ Int("fix_%s" % (i+1)) for i in range(n_tasks)]
 
-# mapping variable is non-negative
+# mapping variable is positive
 for i in range(n_tasks):
-    opt.add(fix[i] >= 0)
+    opt.add(fix[i] >= 1)
 
 R = Int("R")
 
@@ -54,14 +54,14 @@ R = Int("R")
 # relative time window constraints 1
 r = [ [Int("r_%s_%s" % (i+1, k+1)) for k in range(nJobs[i])]
       for i in range(n_tasks)]
-D = [ [Int("D_%s_%s" % (i+1, k+1)) for k in range(nJobs[i])]
+d = [ [Int("d_%s_%s" % (i+1, k+1)) for k in range(nJobs[i])]
       for i in range(n_tasks)]
 for i in range(n_tasks):
     for k in range(nJobs[i]):
         opt.add(r[i][k] == tasks[i]['r'] + k * tasks[i]['T'])
-        opt.add(D[i][k] == tasks[i]['D'] + k * tasks[i]['T'])
+        opt.add(d[i][k] == tasks[i]['d'] + k * tasks[i]['T'])
         opt.add(r[i][k] <= s[i][k],
-                s[i][k] <= D[i][k] - tasks[i]['p'])
+                s[i][k] <= d[i][k] - tasks[i]['p'])
 
 # jitter constraints 2 and 3
 jit = [Int("jit_%s" % (i+1)) for i in range(n_tasks)]
@@ -93,13 +93,13 @@ h = opt.minimize(R)
 # solve the model
 if opt.check() == sat:
     opt.lower(h)
-    m = opt.model()
+    m = opt.model() 
+    print("Number of resources is", m.evaluate(opt.objectives()[0]).as_long())
     start_times = [[m.evaluate(s[i][j]) for j in range(nJobs[i])]
          for i in range(n_tasks)]
-    fix = [m.evaluate(fix[i]) for i in range(n_tasks)]
-    print("Number of resources is", m.evaluate(opt.objectives()[0]))
     print("\nMatrix of the start times is ")
     print_matrix(start_times)
+    fix = [m.evaluate(fix[i]) for i in range(n_tasks)]
     print("\nVector of task mappings to resources")
     print(fix)
 else:
